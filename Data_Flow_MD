@@ -1,0 +1,44 @@
+# Data Flow Diagrams
+```mermaid
+sequenceDiagram
+  participant User
+  participant CLI
+  participant Loader as PDF Loader
+  participant Store as Vector Store
+  participant R as Retriever
+  participant LLM
+  participant Eval as RAGAS
+  participant Reports
+
+  User->>CLI: rag-eval --config configs/eval.yaml
+  CLI->>Loader: Load PDFs
+  Loader->>CLI: Documents with metadata
+  CLI->>Store: Embed and index chunks
+  CLI->>R: Build retrieval strategy
+  loop Each question
+    R->>Store: Retrieve context
+    Store->>R: Top-k chunks
+    R->>LLM: Question + context
+    LLM->>R: Grounded answer
+  end
+  CLI->>Eval: Questions, answers, contexts, ground truth
+  Eval->>Reports: Metric scores
+```
+
+# Online RAG Serving Flow
+
+```mermaid
+flowchart LR
+  Q["User Query"] --> GW["API Gateway"]
+  GW --> Guard["Policy and PII Guardrails"]
+  Guard --> Ret["Retriever Router"]
+  Ret --> Cache["Semantic Cache"]
+  Ret --> VDB["Vector Database"]
+  VDB --> Rank["Reranker"]
+  Cache --> Rank
+  Rank --> Prompt["Prompt Builder"]
+  Prompt --> LLM["LLM Gateway"]
+  LLM --> Verifier["Grounding Verifier"]
+  Verifier --> Resp["Answer with Citations"]
+  Verifier --> Logs["Quality and Cost Logs"]
+```
