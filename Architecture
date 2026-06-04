@@ -18,3 +18,25 @@ flowchart LR
   H --> I["CSV and Markdown Reports"]
   I --> J["Streamlit Dashboard"]
 ```
+# Components
+1.Ingestion: loads PDFs, preserves source/page metadata, and chunks text for retrieval.
+2.Vector stores: supports ChromaDB for local development, Pinecone for managed scale, and Weaviate for self-hosted or hybrid deployments.
+3.Retrieval comparison: runs the same evaluation set across similarity, MMR, BM25, and hybrid ensemble strategies.
+4.Generation: uses a grounded LangChain prompt that refuses unsupported answers.
+5.Evaluation: computes context precision, context recall, faithfulness, and answer relevancy through RAGAS.
+6.Reporting: emits machine-readable CSVs, an executive markdown report, and an interactive dashboard.
+
+# Production Control Plane
+```mermaid
+flowchart TB
+  U["Knowledge Admin"] --> API["Ingestion API"]
+  API --> Q["Document Queue"]
+  Q --> W["Embedding Workers"]
+  W --> V["Vector DB"]
+  V --> R["Retrieval Service"]
+  R --> L["LLM Gateway"]
+  L --> OBS["Tracing, Cost, Quality Telemetry"]
+  OBS --> EVAL["Nightly Evaluation Jobs"]
+  EVAL --> DASH["Quality Dashboard"]
+  EVAL --> ALERT["Regression Alerts"]
+```
